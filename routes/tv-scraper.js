@@ -147,7 +147,8 @@ router.get('/details/:tmdbId', async (req, res) => {
         airDate:       ep.air_date || '',
         runtime:       ep.runtime || 0,
         stillImage:    ep.still_path ? IMG_BASE + ep.still_path : '',
-        streamSources: buildEpisodeSources(req.params.tmdbId, imdbId, s.season_number, ep.episode_number),
+        // Stream sources NOT stored - generated dynamically from tmdbId/imdbId
+        streamSources: [],
       })),
     }));
 
