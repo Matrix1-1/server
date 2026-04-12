@@ -1,7 +1,6 @@
 /**
  * TV Show Routes — public endpoints
- * Stream URLs are generated dynamically from tmdbId/imdbId
- * so we don't hit MongoDB's 16MB document size limit
+ * Stream URLs generated dynamically from tmdbId/imdbId
  */
 
 const express = require('express');
@@ -78,18 +77,13 @@ router.get('/:id/season/:seasonNum', async (req, res) => {
     const season = show.seasons.find(s => s.seasonNumber === parseInt(req.params.seasonNum));
     if (!season) return res.status(404).json({ message: 'Season not found' });
 
-    // Generate stream URLs dynamically
-    const seasonWithSources = {
-      ...season.toObject(),
-      episodes: season.episodes.map(ep => ({
-        ...ep.toObject(),
-        streamSources: ep.streamSources?.length > 0
-          ? ep.streamSources
-          : buildEpisodeSources(show.tmdbId, show.imdbId, season.seasonNumber, ep.episodeNumber),
-      })),
-    };
+    const seasonObj = season.toObject();
+    seasonObj.episodes = seasonObj.episodes.map(ep => ({
+      ...ep,
+      streamSources: buildEpisodeSources(show.tmdbId, show.imdbId, season.seasonNumber, ep.episodeNumber),
+    }));
 
-    res.json(seasonWithSources);
+    res.json(seasonObj);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -108,9 +102,7 @@ router.get('/:id/season/:seasonNum/episode/:epNum', async (req, res) => {
     if (!episode) return res.status(404).json({ message: 'Episode not found' });
 
     const epObj = episode.toObject();
-    if (!epObj.streamSources?.length) {
-      epObj.streamSources = buildEpisodeSources(show.tmdbId, show.imdbId, season.seasonNumber, episode.episodeNumber);
-    }
+    epObj.streamSources = buildEpisodeSources(show.tmdbId, show.imdbId, season.seasonNumber, episode.episodeNumber);
 
     res.json({ show: { title: show.title, poster: show.poster }, season: season.seasonNumber, episode: epObj });
   } catch (err) {
