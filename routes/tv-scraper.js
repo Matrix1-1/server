@@ -126,38 +126,61 @@ router.get('/details/:tmdbId', async (req, res) => {
       return res.json({ ...show, imdbId });
     }
 
-    // Fetch all seasons with episodes — one by one to avoid rate limiting
-    const seasonData = [];
+    // Fetch all seasons with episodes
+    const seasonPromises = [];
     for (let i = 1; i <= (details.number_of_seasons || 0); i++) {
-      try {
-        const s = await fetchJSON(tmdbUrl(`/tv/${req.params.tmdbId}/season/${i}`));
-        seasonData.push(s);
-        // Small delay to avoid TMDB rate limiting
-        await new Promise(r => setTimeout(r, 150));
-      } catch (e) {
-        console.error(`Failed to fetch season ${i}:`, e.message);
-        // Push empty season so numbering stays correct
-        seasonData.push({ season_number: i, episodes: [], name: `Season ${i}` });
-      }
+      seasonPromises.push(fetchJSON(tmdbUrl(`/tv/${req.params.tmdbId}/season/${i}`)));
     }
+    const seasonData = await Promise.all(seasonPromises);
 
-    const seasons = seasonData.map((s) => ({
-      seasonNumber: s.season_number,
-      title:        s.name || `Season ${s.season_number}`,
-      overview:     s.overview || '',
-      poster:       s.poster_path ? IMG_BASE + s.poster_path : show.poster,
-      airDate:      s.air_date || '',
-      episodeCount: s.episodes?.length || 0,
-      episodes: (s.episodes || []).map(ep => ({
-        episodeNumber: ep.episode_number,
-        title:         ep.name || `Episode ${ep.episode_number}`,
-        overview:      ep.overview || '',
-        airDate:       ep.air_date || '',
-        runtime:       ep.runtime || 0,
-        stillImage:    ep.still_path ? IMG_BASE + ep.still_path : '',
-        streamSources: buildEpisodeSources(req.params.tmdbId, imdbId, s.season_number, ep.episode_number),
-      })),
-    }));
+    const seasons = seasonData.map((s) => {
+      const tmdbEpisodes = s.episodes || [];
+
+      // Get expected episode count from show's season list
+      const seasonInfo = details.seasons?.find(ds => ds.season_number === s.season_number);
+      const expectedCount = seasonInfo?.episode_count || tmdbEpisodes.length;
+
+      // Map existing episodes
+      const episodesMap = {};
+      tmdbEpisodes.forEach(ep => {
+        episodesMap[ep.episode_number] = {
+          episodeNumber: ep.episode_number,
+          title:         ep.name || `Episode ${ep.episode_number}`,
+          overview:      ep.overview || '',
+          airDate:       ep.air_date || '',
+          runtime:       ep.runtime || 0,
+          stillImage:    ep.still_path ? IMG_BASE + ep.still_path : '',
+          streamSources: [],
+        };
+      });
+
+      // Fill any missing episodes up to expectedCount
+      for (let i = 1; i <= expectedCount; i++) {
+        if (!episodesMap[i]) {
+          episodesMap[i] = {
+            episodeNumber: i,
+            title:         `Episode ${i}`,
+            overview:      '',
+            airDate:       '',
+            runtime:       0,
+            stillImage:    '',
+            streamSources: [],
+          };
+        }
+      }
+
+      const episodes = Object.values(episodesMap).sort((a, b) => a.episodeNumber - b.episodeNumber);
+
+      return {
+        seasonNumber: s.season_number,
+        title:        s.name || `Season ${s.season_number}`,
+        overview:     s.overview || '',
+        poster:       s.poster_path ? IMG_BASE + s.poster_path : show.poster,
+        airDate:      s.air_date || '',
+        episodeCount: episodes.length,
+        episodes,
+      };
+    });
 
     res.json({ ...show, imdbId, seasons });
   } catch (err) {
