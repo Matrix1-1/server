@@ -126,12 +126,20 @@ router.get('/details/:tmdbId', async (req, res) => {
       return res.json({ ...show, imdbId });
     }
 
-    // Fetch all seasons with episodes
-    const seasonPromises = [];
+    // Fetch all seasons with episodes — one by one to avoid rate limiting
+    const seasonData = [];
     for (let i = 1; i <= (details.number_of_seasons || 0); i++) {
-      seasonPromises.push(fetchJSON(tmdbUrl(`/tv/${req.params.tmdbId}/season/${i}`)));
+      try {
+        const s = await fetchJSON(tmdbUrl(`/tv/${req.params.tmdbId}/season/${i}`));
+        seasonData.push(s);
+        // Small delay to avoid TMDB rate limiting
+        await new Promise(r => setTimeout(r, 150));
+      } catch (e) {
+        console.error(`Failed to fetch season ${i}:`, e.message);
+        // Push empty season so numbering stays correct
+        seasonData.push({ season_number: i, episodes: [], name: `Season ${i}` });
+      }
     }
-    const seasonData = await Promise.all(seasonPromises);
 
     const seasons = seasonData.map((s) => ({
       seasonNumber: s.season_number,
@@ -147,8 +155,7 @@ router.get('/details/:tmdbId', async (req, res) => {
         airDate:       ep.air_date || '',
         runtime:       ep.runtime || 0,
         stillImage:    ep.still_path ? IMG_BASE + ep.still_path : '',
-        // Stream sources NOT stored - generated dynamically from tmdbId/imdbId
-        streamSources: [],
+        streamSources: buildEpisodeSources(req.params.tmdbId, imdbId, s.season_number, ep.episode_number),
       })),
     }));
 
