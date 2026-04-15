@@ -1,13 +1,10 @@
 /**
  * TV Scraper Routes
- * - Search/browse via TMDB (best posters, ratings, metadata)
- * - Episodes fetched from TVmaze (complete, no missing episodes)
- * - Stream URLs generated dynamically
+ * Search TMDB for TV shows, fetch seasons/episodes, build stream URLs, import to DB
  */
 
 const express = require('express');
 const https   = require('https');
-const http    = require('http');
 const TVShow  = require('../models/TVShow');
 const { protect, adminOnly } = require('../middleware/auth');
 
@@ -17,8 +14,7 @@ router.use(protect, adminOnly);
 /* ─── HTTP helper ──────────────────────────────────────────────────────────── */
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
-    const lib = url.startsWith('https') ? https : http;
-    lib.get(url, { headers: { 'User-Agent': 'RoyalQueen/1.0' } }, (res) => {
+    https.get(url, { headers: { 'User-Agent': 'RoyalQueen/1.0' } }, (res) => {
       let raw = '';
       res.on('data', c => raw += c);
       res.on('end', () => {
@@ -61,54 +57,15 @@ function mapTmdbShow(s, details = null) {
   };
 }
 
-/* ─── TVmaze helpers ───────────────────────────────────────────────────────── */
-const TVMAZE_BASE = 'https://api.tvmaze.com';
-
-// Search TVmaze by name and return best match's maze ID
-async function findTVmazeId(title) {
-  try {
-    const results = await fetchJSON(`${TVMAZE_BASE}/search/shows?q=${encodeURIComponent(title)}`);
-    if (!results || !results.length) return null;
-    return results[0].show.id;
-  } catch (e) {
-    return null;
-  }
-}
-
-// Get all episodes from TVmaze grouped by season
-async function getTVmazeEpisodes(mazeId) {
-  try {
-    const episodes = await fetchJSON(`${TVMAZE_BASE}/shows/${mazeId}/episodes`);
-    // Group by season
-    const seasons = {};
-    for (const ep of episodes) {
-      if (!ep.season) continue;
-      if (!seasons[ep.season]) seasons[ep.season] = [];
-      seasons[ep.season].push({
-        episodeNumber: ep.number,
-        title:         ep.name || `Episode ${ep.number}`,
-        overview:      ep.summary ? ep.summary.replace(/<[^>]*>/g, '') : '',
-        airDate:       ep.airdate || '',
-        runtime:       ep.runtime || 0,
-        stillImage:    ep.image?.medium || '',
-        streamSources: [],
-      });
-    }
-    return seasons;
-  } catch (e) {
-    return null;
-  }
-}
-
-/* ─── Stream URL builder ───────────────────────────────────────────────────── */
+/* ─── Stream URL builder for TV episodes ──────────────────────────────────── */
 function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   const sources = [];
-  if (tmdbId) sources.push({ provider: 'autoembed',  label: 'Server 1', url: `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`,                    quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc',     label: 'Server 2', url: `https://vidsrc.xyz/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,   quality: 'auto', isHLS: false });
-  if (imdbId) sources.push({ provider: 'embed.su',   label: 'Server 3', url: `https://embed.su/embed/tv/${imdbId}/${season}/${episode}`,                         quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 4', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,                         quality: 'auto', isHLS: false });
-  if (imdbId) sources.push({ provider: '2embed',     label: 'Server 5', url: `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}`,                 quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'embedrise',  label: 'Server 6', url: `https://embedrise.com/tv/${tmdbId}/${season}/${episode}`,                          quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'autoembed',  label: 'Server 1', url: `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`,           quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc',     label: 'Server 2', url: `https://vidsrc.xyz/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`, quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: 'embed.su',   label: 'Server 3', url: `https://embed.su/embed/tv/${imdbId}/${season}/${episode}`,                quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 4', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,               quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: '2embed',     label: 'Server 5', url: `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}`,        quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'embedrise',  label: 'Server 6', url: `https://embedrise.com/tv/${tmdbId}/${season}/${episode}`,                 quality: 'auto', isHLS: false });
   return sources;
 }
 
@@ -152,14 +109,13 @@ router.get('/popular', async (req, res) => {
 
 /* ══════════════════════════════════════════════════════════════════════════════
    GET /api/tv-scraper/details/:tmdbId?seasons=true
-   Metadata from TMDB + episodes from TVmaze (complete episode data)
+   Full show details, optionally with all season/episode data + stream sources
 ══════════════════════════════════════════════════════════════════════════════ */
 router.get('/details/:tmdbId', async (req, res) => {
   try {
     if (!TMDB_KEY()) return res.status(400).json({ message: 'TMDB_API_KEY not set' });
     const { seasons: fetchSeasons = 'false' } = req.query;
 
-    // Get metadata from TMDB
     const details = await fetchJSON(
       tmdbUrl(`/tv/${req.params.tmdbId}`, { append_to_response: 'credits,external_ids' })
     );
@@ -170,71 +126,30 @@ router.get('/details/:tmdbId', async (req, res) => {
       return res.json({ ...show, imdbId });
     }
 
-    // Get episodes from TVmaze (complete data)
-    const mazeId = await findTVmazeId(show.title);
-    let mazeSeasons = mazeId ? await getTVmazeEpisodes(mazeId) : null;
-
-    // Build seasons using TMDB season list + TVmaze episodes
-    const seasons = [];
+    // Fetch all seasons with episodes
+    const seasonPromises = [];
     for (let i = 1; i <= (details.number_of_seasons || 0); i++) {
-      const seasonInfo = details.seasons?.find(s => s.season_number === i);
-      const expectedCount = seasonInfo?.episode_count || 0;
-
-      // Try to get season poster from TMDB
-      let seasonPoster = show.poster;
-      try {
-        const seasonDetail = await fetchJSON(tmdbUrl(`/tv/${req.params.tmdbId}/season/${i}`));
-        if (seasonDetail.poster_path) seasonPoster = IMG_BASE + seasonDetail.poster_path;
-        await new Promise(r => setTimeout(r, 100)); // small delay
-      } catch (e) {}
-
-      // Use TVmaze episodes if available, otherwise generate placeholders
-      let episodes = [];
-      if (mazeSeasons && mazeSeasons[i]) {
-        episodes = mazeSeasons[i].sort((a, b) => a.episodeNumber - b.episodeNumber);
-      } else {
-        // Fallback: generate episodes from TMDB count
-        for (let ep = 1; ep <= expectedCount; ep++) {
-          episodes.push({
-            episodeNumber: ep,
-            title:         `Episode ${ep}`,
-            overview:      '',
-            airDate:       '',
-            runtime:       0,
-            stillImage:    '',
-            streamSources: [],
-          });
-        }
-      }
-
-      // Make sure we have all episodes up to expectedCount
-      const epMap = {};
-      episodes.forEach(ep => { epMap[ep.episodeNumber] = ep; });
-      for (let ep = 1; ep <= Math.max(expectedCount, episodes.length); ep++) {
-        if (!epMap[ep]) {
-          epMap[ep] = {
-            episodeNumber: ep,
-            title:         `Episode ${ep}`,
-            overview:      '',
-            airDate:       '',
-            runtime:       0,
-            stillImage:    '',
-            streamSources: [],
-          };
-        }
-      }
-      episodes = Object.values(epMap).sort((a, b) => a.episodeNumber - b.episodeNumber);
-
-      seasons.push({
-        seasonNumber: i,
-        title:        seasonInfo?.name || `Season ${i}`,
-        overview:     seasonInfo?.overview || '',
-        poster:       seasonPoster,
-        airDate:      seasonInfo?.air_date || '',
-        episodeCount: episodes.length,
-        episodes,
-      });
+      seasonPromises.push(fetchJSON(tmdbUrl(`/tv/${req.params.tmdbId}/season/${i}`)));
     }
+    const seasonData = await Promise.all(seasonPromises);
+
+    const seasons = seasonData.map((s) => ({
+      seasonNumber: s.season_number,
+      title:        s.name || `Season ${s.season_number}`,
+      overview:     s.overview || '',
+      poster:       s.poster_path ? IMG_BASE + s.poster_path : show.poster,
+      airDate:      s.air_date || '',
+      episodeCount: s.episodes?.length || 0,
+      episodes: (s.episodes || []).map(ep => ({
+        episodeNumber: ep.episode_number,
+        title:         ep.name || `Episode ${ep.episode_number}`,
+        overview:      ep.overview || '',
+        airDate:       ep.air_date || '',
+        runtime:       ep.runtime || 0,
+        stillImage:    ep.still_path ? IMG_BASE + ep.still_path : '',
+        streamSources: buildEpisodeSources(req.params.tmdbId, imdbId, s.season_number, ep.episode_number),
+      })),
+    }));
 
     res.json({ ...show, imdbId, seasons });
   } catch (err) {
@@ -244,6 +159,7 @@ router.get('/details/:tmdbId', async (req, res) => {
 
 /* ══════════════════════════════════════════════════════════════════════════════
    POST /api/tv-scraper/import
+   Import one or more TV shows with all seasons+episodes into MongoDB
 ══════════════════════════════════════════════════════════════════════════════ */
 router.post('/import', async (req, res) => {
   try {

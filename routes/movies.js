@@ -135,4 +135,85 @@ router.post('/:id/view', async (req, res) => {
   }
 });
 
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   GET /api/movies/download/movie?title=xxx&year=xxx
+   Proxy YTS API to avoid CORS issues
+══════════════════════════════════════════════════════════════════════════════ */
+router.get('/download/movie', async (req, res) => {
+  try {
+    const { title, year } = req.query;
+    if (!title) return res.status(400).json({ message: 'title is required' });
+    const https = require('https');
+    const url = `https://yts.mx/api/v2/list_movies.json?query_term=${encodeURIComponent(title)}&limit=5`;
+    https.get(url, { headers: { 'User-Agent': 'RoyalQueen/1.0' } }, (r) => {
+      let raw = '';
+      r.on('data', c => raw += c);
+      r.on('end', () => {
+        try {
+          const data = JSON.parse(raw);
+          const movies = data.data?.movies || [];
+          const match = year
+            ? movies.find(m => m.year === parseInt(year)) || movies[0]
+            : movies[0];
+          if (match?.torrents?.length > 0) {
+            res.json({ torrents: match.torrents.map(t => ({
+              quality: t.quality,
+              size: t.size,
+              type: t.type,
+              seeds: t.seeds,
+              url: t.url,
+            }))});
+          } else {
+            res.json({ torrents: [] });
+          }
+        } catch (e) {
+          res.json({ torrents: [] });
+        }
+      });
+    }).on('error', () => res.json({ torrents: [] }));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   GET /api/movies/download/tv?imdb_id=xxx&season=x&episode=x
+   Proxy EZTV API to avoid CORS issues
+══════════════════════════════════════════════════════════════════════════════ */
+router.get('/download/tv', async (req, res) => {
+  try {
+    const { imdb_id, season, episode } = req.query;
+    if (!imdb_id) return res.status(400).json({ message: 'imdb_id is required' });
+    const https = require('https');
+    const imdbNum = imdb_id.replace('tt', '');
+    const url = `https://eztv.re/api/get-torrents?imdb_id=${imdbNum}&limit=20`;
+    https.get(url, { headers: { 'User-Agent': 'RoyalQueen/1.0' } }, (r) => {
+      let raw = '';
+      r.on('data', c => raw += c);
+      r.on('end', () => {
+        try {
+          const data = JSON.parse(raw);
+          const torrents = data.torrents || [];
+          const s = String(season).padStart(2, '0');
+          const e = String(episode).padStart(2, '0');
+          const epStr = `S${s}E${e}`;
+          const matches = torrents.filter(t => t.title?.toUpperCase().includes(epStr));
+          res.json({ torrents: matches.map(t => ({
+            quality: t.title?.match(/\d{3,4}p/i)?.[0] || 'HD',
+            size: t.size_bytes ? (t.size_bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB' : '?',
+            seeds: t.seeds || 0,
+            url: t.torrent_url,
+            title: t.title,
+          }))});
+        } catch (e) {
+          res.json({ torrents: [] });
+        }
+      });
+    }).on('error', () => res.json({ torrents: [] }));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
