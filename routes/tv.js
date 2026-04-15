@@ -1,12 +1,24 @@
 /**
  * TV Show Routes — public endpoints
+ * Stream URLs generated dynamically from tmdbId/imdbId
  */
 
 const express = require('express');
 const TVShow  = require('../models/TVShow');
-const { protect } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Build stream sources dynamically
+function buildEpisodeSources(tmdbId, imdbId, season, episode) {
+  const sources = [];
+  if (tmdbId) sources.push({ provider: 'autoembed',  label: 'Server 1', url: `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`,                    quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc',     label: 'Server 2', url: `https://vidsrc.xyz/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,   quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: 'embed.su',   label: 'Server 3', url: `https://embed.su/embed/tv/${imdbId}/${season}/${episode}`,                         quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 4', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,                         quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: '2embed',     label: 'Server 5', url: `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}`,                 quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'embedrise',  label: 'Server 6', url: `https://embedrise.com/tv/${tmdbId}/${season}/${episode}`,                          quality: 'auto', isHLS: false });
+  return sources;
+}
 
 // GET /api/tv — list shows with filters
 router.get('/', async (req, res) => {
@@ -22,7 +34,7 @@ router.get('/', async (req, res) => {
     const skip  = (parseInt(page) - 1) * parseInt(limit);
     const total = await TVShow.countDocuments(query);
     const shows = await TVShow.find(query)
-      .select('-seasons.episodes.streamSources') // don't send stream URLs in list
+      .select('-seasons')
       .sort('-createdAt')
       .skip(skip)
       .limit(parseInt(limit));
@@ -43,7 +55,7 @@ router.get('/genres', async (req, res) => {
   }
 });
 
-// GET /api/tv/:id — full show with seasons (no episode stream URLs)
+// GET /api/tv/:id — full show with seasons (no stream URLs)
 router.get('/:id', async (req, res) => {
   try {
     const show = await TVShow.findById(req.params.id)
@@ -56,29 +68,43 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// GET /api/tv/:id/season/:seasonNum — full season with episode stream URLs
+// GET /api/tv/:id/season/:seasonNum — season with dynamically generated stream URLs
 router.get('/:id/season/:seasonNum', async (req, res) => {
   try {
     const show = await TVShow.findById(req.params.id);
     if (!show) return res.status(404).json({ message: 'Show not found' });
+
     const season = show.seasons.find(s => s.seasonNumber === parseInt(req.params.seasonNum));
     if (!season) return res.status(404).json({ message: 'Season not found' });
-    res.json(season);
+
+    const seasonObj = season.toObject();
+    seasonObj.episodes = seasonObj.episodes.map(ep => ({
+      ...ep,
+      streamSources: buildEpisodeSources(show.tmdbId, show.imdbId, season.seasonNumber, ep.episodeNumber),
+    }));
+
+    res.json(seasonObj);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// GET /api/tv/:id/season/:seasonNum/episode/:epNum — single episode with stream URLs
+// GET /api/tv/:id/season/:seasonNum/episode/:epNum
 router.get('/:id/season/:seasonNum/episode/:epNum', async (req, res) => {
   try {
     const show = await TVShow.findById(req.params.id);
     if (!show) return res.status(404).json({ message: 'Show not found' });
+
     const season = show.seasons.find(s => s.seasonNumber === parseInt(req.params.seasonNum));
     if (!season) return res.status(404).json({ message: 'Season not found' });
+
     const episode = season.episodes.find(e => e.episodeNumber === parseInt(req.params.epNum));
     if (!episode) return res.status(404).json({ message: 'Episode not found' });
-    res.json({ show: { title: show.title, poster: show.poster }, season: season.seasonNumber, episode });
+
+    const epObj = episode.toObject();
+    epObj.streamSources = buildEpisodeSources(show.tmdbId, show.imdbId, season.seasonNumber, episode.episodeNumber);
+
+    res.json({ show: { title: show.title, poster: show.poster }, season: season.seasonNumber, episode: epObj });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
