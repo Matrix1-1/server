@@ -59,7 +59,7 @@ function mapTmdbMovie(m, details = null) {
     duration:    details?.runtime || 0,
     director:    details?.credits?.crew?.find(c => c.job === 'Director')?.name || '',
     cast:        (details?.credits?.cast || []).slice(0, 6).map(c => c.name),
-    language:    m.original_language === 'en' ? 'English' : (m.original_language || 'English'),
+    language:    m.original_language === 'en' ? 'English' : m.original_language === 'ja' ? 'Japanese' : m.original_language === 'ko' ? 'Korean' : m.original_language === 'fr' ? 'French' : m.original_language === 'es' ? 'Spanish' : m.original_language === 'de' ? 'German' : m.original_language === 'ar' ? 'Arabic' : 'English',
   };
 }
 
@@ -92,6 +92,9 @@ function buildStreamSources(tmdbId, imdbId) {
 
   // Server 6: embedrise
   if (tmdbId) sources.push({ provider:'mixdrop', label:'Server 6', url:`https://embedrise.com/movie/${tmdbId}`, quality:'auto', isHLS:false });
+
+  // Server 7: aniwave (good for anime)
+  if (tmdbId) sources.push({ provider:'aniwave', label:'Server 7', url:`https://aniwatchtv.to/movie/${tmdbId}`, quality:'auto', isHLS:false });
 
   return sources;
 }

@@ -53,7 +53,7 @@ function mapTmdbShow(s, details = null) {
     network:      details?.networks?.[0]?.name || '',
     totalSeasons: details?.number_of_seasons || 0,
     cast:         (details?.credits?.cast || []).slice(0, 6).map(c => c.name),
-    language:     s.original_language === 'en' ? 'English' : (s.original_language || 'English'),
+    language:     s.original_language === 'en' ? 'English' : s.original_language === 'ja' ? 'Japanese' : s.original_language === 'ko' ? 'Korean' : s.original_language === 'fr' ? 'French' : s.original_language === 'es' ? 'Spanish' : s.original_language === 'de' ? 'German' : s.original_language === 'ar' ? 'Arabic' : 'English',
   };
 }
 
@@ -66,6 +66,8 @@ function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 4', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,               quality: 'auto', isHLS: false });
   if (imdbId) sources.push({ provider: '2embed',     label: 'Server 5', url: `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}`,        quality: 'auto', isHLS: false });
   if (tmdbId) sources.push({ provider: 'embedrise',  label: 'Server 6', url: `https://embedrise.com/tv/${tmdbId}/${season}/${episode}`,                 quality: 'auto', isHLS: false });
+  // Server 7: aniwatch (good for anime)
+  if (tmdbId) sources.push({ provider: 'aniwave', label: 'Server 7', url: `https://aniwatchtv.to/tv/${tmdbId}/${season}/${episode}`, quality: 'auto', isHLS: false });
   return sources;
 }
 
