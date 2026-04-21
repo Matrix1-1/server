@@ -210,7 +210,7 @@ router.post('/import', async (req, res) => {
           duration:      m.duration || 0,
           director:      m.director || '',
           cast:          m.cast || [],
-          language:      m.language || 'English',
+          language:      'English', // normalize to avoid validation errors
           streamUrl:     m.streamUrl || m.primaryStreamUrl || (m.streamSources?.[0]?.url || ''),
           streamSources: (m.streamSources || []).map(s => ({
             provider: s.provider || 'direct',

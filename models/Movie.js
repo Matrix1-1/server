@@ -7,16 +7,8 @@
 const mongoose = require('mongoose');
 
 const streamSourceSchema = new mongoose.Schema({
-  provider: {
-    type: String,
-    enum: ['streamtape', 'vidstream', 'mp4upload', 'doodstream', 'mixdrop', 'filemoon', 'upcloud', 'archive', 'direct', 'aniwave', 'vidsrc', 'autoembed', 'embed.su', 'moviesapi', '2embed', 'embedrise'],
-    default: 'direct',
-  },
-  quality: {
-    type: String,
-    enum: ['360p', '480p', '720p', '1080p', '4K', 'auto'],
-    default: 'auto',
-  },
+  provider: { type: String, default: 'direct' },
+  quality:  { type: String, default: 'auto' },
   url: { type: String, required: true },
   isHLS: { type: Boolean, default: false }, // true = .m3u8 playlist, false = direct MP4
 });
