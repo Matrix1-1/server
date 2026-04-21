@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 const streamSourceSchema = new mongoose.Schema({
   provider: {
     type: String,
-    enum: ['streamtape', 'vidstream', 'mp4upload', 'doodstream', 'mixdrop', 'filemoon', 'upcloud', 'archive', 'direct'],
+    enum: ['streamtape', 'vidstream', 'mp4upload', 'doodstream', 'mixdrop', 'filemoon', 'upcloud', 'archive', 'direct', 'aniwave', 'vidsrc', 'autoembed', 'embed.su', 'moviesapi', '2embed', 'embedrise'],
     default: 'direct',
   },
   quality: {
