@@ -188,7 +188,7 @@ router.post('/import', async (req, res) => {
           backdrop:     s.backdrop || '',
           status:       s.status || 'Ended',
           network:      s.network || '',
-          language:     s.language || 'English',
+          language:     'English',
           cast:         s.cast || [],
           totalSeasons: s.totalSeasons || s.seasons?.length || 0,
           seasons:      s.seasons || [],
