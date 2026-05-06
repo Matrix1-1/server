@@ -259,46 +259,4 @@ router.get('/genres', async (req, res) => {
   res.json(Object.entries(GENRE_MAP).map(([id, name]) => ({ id: Number(id), name })));
 });
 
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   POST /api/scraper/fix-urls
-   Updates all movies in DB with new stream URLs based on their tmdbId
-══════════════════════════════════════════════════════════════════════════════ */
-router.post('/fix-urls', async (req, res) => {
-  try {
-    const movies = await Movie.find({ isPublished: true });
-    let updated = 0;
-
-    for (const movie of movies) {
-      if (!movie.tmdbId && !movie.streamSources?.length) continue;
-
-      // Get tmdbId and imdbId from existing stream sources
-      const tmdbId = movie.tmdbId;
-      const imdbUrl = movie.streamSources?.find(s => s.url?.includes('embed.su') || s.url?.includes('2embed'));
-      const imdbId = imdbUrl?.url?.match(/tt\d+/)?.[0] || '';
-
-      if (!tmdbId) continue;
-
-      const newSources = [
-        { provider: 'upcloud',     label: 'Server 1', url: `https://vsembed.su/embed/movie?tmdb=${tmdbId}`,    quality: 'auto', isHLS: false },
-        { provider: 'filemoon',    label: 'Server 2', url: imdbId ? `https://embed.su/embed/movie/${imdbId}` : `https://vsembed.su/embed/movie?tmdb=${tmdbId}`, quality: 'auto', isHLS: false },
-        { provider: 'streamtape',  label: 'Server 3', url: `https://moviesapi.club/movie/${tmdbId}`,           quality: 'auto', isHLS: false },
-        { provider: 'doodstream',  label: 'Server 4', url: imdbId ? `https://www.2embed.cc/embed/${imdbId}` : `https://vsembed.su/embed/movie?tmdb=${tmdbId}`, quality: 'auto', isHLS: false },
-        { provider: 'mixdrop',     label: 'Server 5', url: `https://embedrise.com/movie/${tmdbId}`,            quality: 'auto', isHLS: false },
-        { provider: 'vidstream',   label: 'Server 6', url: `https://autoembed.co/movie/tmdb/${tmdbId}`,        quality: 'auto', isHLS: false },
-      ];
-
-      await Movie.findByIdAndUpdate(movie._id, {
-        streamSources: newSources,
-        streamUrl: newSources[0].url,
-      });
-      updated++;
-    }
-
-    res.json({ message: `Updated ${updated} movies with new stream URLs.`, updated });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 module.exports = router;
