@@ -79,7 +79,7 @@ function buildStreamSources(tmdbId, imdbId) {
   if (tmdbId) sources.push({ provider:'vidstream', label:'Server 1', url:`https://autoembed.co/movie/tmdb/${tmdbId}`, quality:'auto', isHLS:false });
 
   // Server 2: vidsrc.xyz
-  if (tmdbId) sources.push({ provider:'upcloud', label:'Server 2', url:`https://vidsrc.xyz/embed/movie?tmdb=${tmdbId}`, quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'upcloud', label:'Server 2', url:`https://vsembed.su/embed/movie?tmdb=${tmdbId}`, quality:'auto', isHLS:false });
 
   // Server 3: embed.su
   if (imdbId) sources.push({ provider:'filemoon', label:'Server 3', url:`https://embed.su/embed/movie/${imdbId}`, quality:'auto', isHLS:false });

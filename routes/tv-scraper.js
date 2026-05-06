@@ -61,7 +61,7 @@ function mapTmdbShow(s, details = null) {
 function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   const sources = [];
   if (tmdbId) sources.push({ provider: 'autoembed',  label: 'Server 1', url: `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`,           quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc',     label: 'Server 2', url: `https://vidsrc.xyz/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`, quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc',     label: 'Server 2', url: `https://vsembed.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`, quality: 'auto', isHLS: false });
   if (imdbId) sources.push({ provider: 'embed.su',   label: 'Server 3', url: `https://embed.su/embed/tv/${imdbId}/${season}/${episode}`,                quality: 'auto', isHLS: false });
   if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 4', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,               quality: 'auto', isHLS: false });
   if (imdbId) sources.push({ provider: '2embed',     label: 'Server 5', url: `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}`,        quality: 'auto', isHLS: false });
