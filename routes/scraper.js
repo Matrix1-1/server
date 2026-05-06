@@ -75,23 +75,23 @@ const GENRE_MAP = {
 function buildStreamSources(tmdbId, imdbId) {
   const sources = [];
 
-  // Server 1: autoembed.co
-  if (tmdbId) sources.push({ provider:'vidstream', label:'Server 1', url:`https://autoembed.co/movie/tmdb/${tmdbId}`, quality:'auto', isHLS:false });
+  // Server 1: vsembed.su (main)
+  if (tmdbId) sources.push({ provider:'upcloud', label:'Server 1', url:`https://vsembed.su/embed/movie?tmdb=${tmdbId}`, quality:'auto', isHLS:false });
 
-  // Server 2: vidsrc.xyz
-  if (tmdbId) sources.push({ provider:'upcloud', label:'Server 2', url:`https://vsembed.su/embed/movie?tmdb=${tmdbId}`, quality:'auto', isHLS:false });
+  // Server 2: embed.su
+  if (imdbId) sources.push({ provider:'filemoon', label:'Server 2', url:`https://embed.su/embed/movie/${imdbId}`, quality:'auto', isHLS:false });
 
-  // Server 3: embed.su
-  if (imdbId) sources.push({ provider:'filemoon', label:'Server 3', url:`https://embed.su/embed/movie/${imdbId}`, quality:'auto', isHLS:false });
+  // Server 3: moviesapi.club
+  if (tmdbId) sources.push({ provider:'streamtape', label:'Server 3', url:`https://moviesapi.club/movie/${tmdbId}`, quality:'auto', isHLS:false });
 
-  // Server 4: moviesapi.club
-  if (tmdbId) sources.push({ provider:'streamtape', label:'Server 4', url:`https://moviesapi.club/movie/${tmdbId}`, quality:'auto', isHLS:false });
+  // Server 4: 2embed.cc
+  if (imdbId) sources.push({ provider:'doodstream', label:'Server 4', url:`https://www.2embed.cc/embed/${imdbId}`, quality:'auto', isHLS:false });
 
-  // Server 5: 2embed.cc
-  if (imdbId) sources.push({ provider:'doodstream', label:'Server 5', url:`https://www.2embed.cc/embed/${imdbId}`, quality:'auto', isHLS:false });
+  // Server 5: embedrise
+  if (tmdbId) sources.push({ provider:'mixdrop', label:'Server 5', url:`https://embedrise.com/movie/${tmdbId}`, quality:'auto', isHLS:false });
 
-  // Server 6: embedrise
-  if (tmdbId) sources.push({ provider:'mixdrop', label:'Server 6', url:`https://embedrise.com/movie/${tmdbId}`, quality:'auto', isHLS:false });
+  // Server 6: autoembed.co
+  if (tmdbId) sources.push({ provider:'vidstream', label:'Server 6', url:`https://autoembed.co/movie/tmdb/${tmdbId}`, quality:'auto', isHLS:false });
 
   // Server 7: aniwave (good for anime)
   if (tmdbId) sources.push({ provider:'aniwave', label:'Server 7', url:`https://aniwatchtv.to/movie/${tmdbId}`, quality:'auto', isHLS:false });
