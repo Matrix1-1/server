@@ -8,23 +8,24 @@ const TVShow  = require('../models/TVShow');
 
 const router = express.Router();
 
-// Build stream sources dynamically
 function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   const sources = [];
-  if (tmdbId) sources.push({ provider: 'godrive',    label: 'Server 1', url: `https://godriveplayer.com/player.php?type=series&tmdb=${tmdbId}&season=${season}&episode=${episode}`, quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidlink',    label: 'Server 2', url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`,                                              quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc.sbs', label: 'Server 3', url: `https://vidsrc.sbs/embed/tv?tmdb=${tmdbId}&s=${season}&e=${episode}`,                               quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc.cc',  label: 'Server 4', url: `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`,                                      quality: 'auto', isHLS: false });
-  if (imdbId) sources.push({ provider: 'vidsrc.me',  label: 'Server 5', url: `https://vidsrc.me/embed/tv?imdb=${imdbId}&season=${season}&episode=${episode}`,                     quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'superembed', label: 'Server 6', url: `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,        quality: 'auto', isHLS: false });
-  if (imdbId) sources.push({ provider: '2embed',     label: 'Server 7', url: `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}`,                                  quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'embedrise',  label: 'Server 8', url: `https://embedrise.com/tv/${tmdbId}/${season}/${episode}`,                                           quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 9', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,                                          quality: 'auto', isHLS: false });
-  if (imdbId) sources.push({ provider: 'embed.su',   label: 'Server 10', url: `https://embed.su/embed/tv/${imdbId}/${season}/${episode}`,                                         quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vikembed',   label: 'Server 1',  url: `https://vembed.click/embed/tv/${tmdbId}/${season}/${episode}`,                                     quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: '2embed.new', label: 'Server 2',  url: `https://www.2embed.online/embed/tv/${tmdbId}/${season}/${episode}`,                                 quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'godrive',    label: 'Server 3',  url: `https://godriveplayer.com/player.php?type=series&tmdb=${tmdbId}&season=${season}&episode=${episode}`, quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidlink',    label: 'Server 4',  url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`,                                             quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc.sbs', label: 'Server 5',  url: `https://vidsrc.sbs/embed/tv?tmdb=${tmdbId}&s=${season}&e=${episode}`,                              quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc.cc',  label: 'Server 6',  url: `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`,                                     quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: 'vidsrc.me',  label: 'Server 7',  url: `https://vidsrc.me/embed/tv?imdb=${imdbId}&season=${season}&episode=${episode}`,                    quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: 'apimdb',     label: 'Server 8',  url: `https://v2.apimdb.net/e/tmdb/tv/${tmdbId}/${season}/${episode}`,                                   quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'superembed', label: 'Server 9',  url: `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,       quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: '2embed',     label: 'Server 10', url: `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}`,                                 quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'embedrise',  label: 'Server 11', url: `https://embedrise.com/tv/${tmdbId}/${season}/${episode}`,                                          quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 12', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,                                         quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: 'embed.su',   label: 'Server 13', url: `https://embed.su/embed/tv/${imdbId}/${season}/${episode}`,                                         quality: 'auto', isHLS: false });
   return sources;
 }
 
-// GET /api/tv
 router.get('/', async (req, res) => {
   try {
     const { search, genre, trending, featured, limit = 20, page = 1 } = req.query;
@@ -40,7 +41,6 @@ router.get('/', async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// GET /api/tv/genres
 router.get('/genres', async (req, res) => {
   try {
     const genres = await TVShow.distinct('genre');
@@ -48,7 +48,6 @@ router.get('/genres', async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// GET /api/tv/:id
 router.get('/:id', async (req, res) => {
   try {
     const show = await TVShow.findById(req.params.id).select('-seasons.episodes.streamSources');
@@ -58,7 +57,6 @@ router.get('/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// GET /api/tv/:id/season/:seasonNum
 router.get('/:id/season/:seasonNum', async (req, res) => {
   try {
     const show = await TVShow.findById(req.params.id);
@@ -74,7 +72,6 @@ router.get('/:id/season/:seasonNum', async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// GET /api/tv/:id/season/:seasonNum/episode/:epNum
 router.get('/:id/season/:seasonNum/episode/:epNum', async (req, res) => {
   try {
     const show = await TVShow.findById(req.params.id);
