@@ -10,7 +10,7 @@ const router = express.Router();
 
 function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   const sources = [];
-  if (tmdbId) sources.push({ provider: 'vikembed',   label: 'Server 1',  url: `https://vembed.click/embed/tv/${tmdbId}/${season}/${episode}`,                                     quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vikembed',   label: 'Server 1',  url: `https://vembed.click/play/${tmdbId}_s${season}_e${episode}`,                                     quality: 'auto', isHLS: false });
   if (tmdbId) sources.push({ provider: '2embed.new', label: 'Server 2',  url: `https://www.2embed.online/embed/tv/${tmdbId}/${season}/${episode}`,                                 quality: 'auto', isHLS: false });
   if (tmdbId) sources.push({ provider: 'godrive',    label: 'Server 3',  url: `https://godriveplayer.com/player.php?type=series&tmdb=${tmdbId}&season=${season}&episode=${episode}`, quality: 'auto', isHLS: false });
   if (tmdbId) sources.push({ provider: 'vidlink',    label: 'Server 4',  url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`,                                             quality: 'auto', isHLS: false });

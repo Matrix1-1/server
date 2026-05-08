@@ -74,7 +74,7 @@ const GENRE_MAP = {
 /* ─── Stream URL builders ─────────────────────────────────────────────────── */
 function buildStreamSources(tmdbId, imdbId) {
   const sources = [];
-  if (tmdbId) sources.push({ provider:'vikembed',   label:'Server 1',  url:`https://vembed.click/embed/movie/${tmdbId}`,                              quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vikembed',   label:'Server 1',  url:`https://vembed.click/play/${imdbId}`,                              quality:'auto', isHLS:false });
   if (tmdbId) sources.push({ provider:'2embed.new', label:'Server 2',  url:`https://www.2embed.online/embed/movie/${tmdbId}`,                         quality:'auto', isHLS:false });
   if (tmdbId) sources.push({ provider:'godrive',    label:'Server 3',  url:`https://godriveplayer.com/player.php?imdb=${tmdbId}`,                     quality:'auto', isHLS:false });
   if (tmdbId) sources.push({ provider:'vidlink',    label:'Server 4',  url:`https://vidlink.pro/movie/${tmdbId}`,                                     quality:'auto', isHLS:false });
