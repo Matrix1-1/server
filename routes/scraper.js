@@ -74,19 +74,10 @@ const GENRE_MAP = {
 /* ─── Stream URL builders ─────────────────────────────────────────────────── */
 function buildStreamSources(tmdbId, imdbId) {
   const sources = [];
-  if (tmdbId) sources.push({ provider:'vikembed',   label:'Server 1',  url:`https://vembed.click/play/${imdbId}`,                              quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'2embed.new', label:'Server 2',  url:`https://www.2embed.online/embed/movie/${tmdbId}`,                         quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'godrive',    label:'Server 3',  url:`https://godriveplayer.com/player.php?imdb=${tmdbId}`,                     quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidlink',    label:'Server 4',  url:`https://vidlink.pro/movie/${tmdbId}`,                                     quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidsrc.sbs', label:'Server 5',  url:`https://vidsrc.sbs/embed/movie?tmdb=${tmdbId}`,                           quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidsrc.cc',  label:'Server 6',  url:`https://vidsrc.cc/v2/embed/movie/${tmdbId}`,                              quality:'auto', isHLS:false });
-  if (imdbId) sources.push({ provider:'vidsrc.me',  label:'Server 7',  url:`https://vidsrc.me/embed/movie?imdb=${imdbId}`,                            quality:'auto', isHLS:false });
-  if (imdbId) sources.push({ provider:'apimdb',     label:'Server 8',  url:`https://v2.apimdb.net/e/movie/${imdbId}`,                                 quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'superembed', label:'Server 9',  url:`https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`,       quality:'auto', isHLS:false });
-  if (imdbId) sources.push({ provider:'filemoon',   label:'Server 10', url:`https://embed.su/embed/movie/${imdbId}`,                                  quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'streamtape', label:'Server 11', url:`https://moviesapi.club/movie/${tmdbId}`,                                  quality:'auto', isHLS:false });
-  if (imdbId) sources.push({ provider:'doodstream', label:'Server 12', url:`https://www.2embed.cc/embed/${imdbId}`,                                   quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'mixdrop',    label:'Server 13', url:`https://embedrise.com/movie/${tmdbId}`,                                   quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidsrc.icu',   label:'Server 1', url:`https://vidsrc.icu/embed/movie/${tmdbId}`,                              quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidsrc.cc',    label:'Server 2', url:`https://vidsrc.cc/v2/embed/movie/${tmdbId}`,                            quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'cinesrc',      label:'Server 3', url:`https://cinesrc.st/embed/movie/${tmdbId}`,                              quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidsrc-embed', label:'Server 4', url:`https://vidsrc-embed.su/embed/movie?tmdb=${tmdbId}`,                    quality:'auto', isHLS:false });
   return sources;
 }
 
