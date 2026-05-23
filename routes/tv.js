@@ -9,10 +9,11 @@ const router  = express.Router();
 
 function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   const sources = [];
-  if (tmdbId) sources.push({ provider: 'vidsrcme.su',    label: 'Server 1', url: `https://vidsrcme.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,          quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc.cc',     label: 'Server 2', url: `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`,         quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'cinesrc',       label: 'Server 3', url: `https://cinesrc.st/embed/tv/${tmdbId}/${season}/${episode}`,           quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc-embed',  label: 'Server 4', url: `https://vidsrc-embed.su/embed/tv?tmdb=${tmdbId}&s=${season}&e=${episode}`, quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc.cc',    label: 'Server 1', url: `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`,                   quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidlink',      label: 'Server 2', url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`,                           quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'cinesrc',      label: 'Server 3', url: `https://cinesrc.st/embed/tv/${tmdbId}/${season}/${episode}`,                     quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc-embed', label: 'Server 4', url: `https://vidsrc-embed.su/embed/tv?tmdb=${tmdbId}&s=${season}&e=${episode}`,       quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrcme.su',  label: 'Server 5', url: `https://vidsrcme.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`, quality: 'auto', isHLS: false });
   return sources;
 }
 

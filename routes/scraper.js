@@ -74,10 +74,11 @@ const GENRE_MAP = {
 /* ─── Stream URL builders ─────────────────────────────────────────────────── */
 function buildStreamSources(tmdbId, imdbId) {
   const sources = [];
-  if (tmdbId) sources.push({ provider:'vidsrcme.su',   label:'Server 1', url:`https://vidsrcme.su/embed/movie?tmdb=${tmdbId}`,                              quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidsrc.cc',    label:'Server 2', url:`https://vidsrc.cc/v2/embed/movie/${tmdbId}`,                            quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'cinesrc',      label:'Server 3', url:`https://cinesrc.st/embed/movie/${tmdbId}`,                              quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidsrc-embed', label:'Server 4', url:`https://vidsrc-embed.su/embed/movie?tmdb=${tmdbId}`,                    quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidsrc.cc',    label:'Server 1', url:`https://vidsrc.cc/v2/embed/movie/${tmdbId}`,             quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidlink',      label:'Server 2', url:`https://vidlink.pro/movie/${tmdbId}`,                    quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'cinesrc',      label:'Server 3', url:`https://cinesrc.st/embed/movie/${tmdbId}`,               quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidsrc-embed', label:'Server 4', url:`https://vidsrc-embed.su/embed/movie?tmdb=${tmdbId}`,     quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidsrcme.su',  label:'Server 5', url:`https://vidsrcme.su/embed/movie?tmdb=${tmdbId}`,         quality:'auto', isHLS:false });
   return sources;
 }
 
