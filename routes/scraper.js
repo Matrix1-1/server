@@ -72,15 +72,34 @@ const GENRE_MAP = {
 };
 
 /* ─── Stream URL builders ─────────────────────────────────────────────────── */
+/**
+ * TIER 1 — Best quality & speed (all TMDB-based, no IMDB needed)
+ *   S1  vidsrc.to      – most popular, 1080p, auto-updated
+ *   S2  vidlink.pro    – fast CDN, 1080p, low-ad player
+ *   S3  player.videasy.net – 4K support, wide library
+ *   S4  vidsrc.sbs     – no-ads variant of vidsrc family, 1080p
+ *   S5  vidsrc.mov     – multi-server failover, 1080p, subtitles
+ * TIER 2 — Reliable fallbacks
+ *   S6  vidfast.pro       – 4K/1080p, uses IMDB id
+ *   S7  multiembed.mov    – HLS multi-quality player (SuperEmbed)
+ *   S8  player.autoembed.cc – broad content, 1080p
+ *   S9  2embed.stream     – stable, clean player
+ *   S10 embed.su          – clean UI, TMDB
+ */
 function buildStreamSources(tmdbId, imdbId) {
   const sources = [];
-  if (tmdbId) sources.push({ provider:'vidlink',    label:'Server 1', url:`https://vidlink.pro/movie/${tmdbId}`,                            quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidsrc.to',  label:'Server 2', url:`https://vidsrc.to/embed/movie/${tmdbId}`,                        quality:'auto', isHLS:false });
-  if (imdbId) sources.push({ provider:'vidsrc.me',  label:'Server 3', url:`https://vidsrc.me/embed/movie?imdb=${imdbId}`,                   quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'moviesapi',  label:'Server 4', url:`https://moviesapi.club/movie/${tmdbId}`,                         quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'superembed', label:'Server 5', url:`https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`, quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vsembed.ru', label:'Server 6', url:`https://vsembed.ru/embed/movie?tmdb=${tmdbId}&autoplay=1`,         quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vsembed.su', label:'Server 7', url:`https://vsembed.su/embed/movie?tmdb=${tmdbId}&autoplay=1`,         quality:'auto', isHLS:false });
+  // ── Tier 1 ──
+  if (tmdbId) sources.push({ provider: 'vidsrc.to',    label: 'Server 1',  url: `https://vidsrc.to/embed/movie/${tmdbId}`,                          quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidlink',      label: 'Server 2',  url: `https://vidlink.pro/movie/${tmdbId}?autoplay=true`,                 quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'videasy',      label: 'Server 3',  url: `https://player.videasy.net/movie/${tmdbId}`,                       quality: '4K',    isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc.sbs',   label: 'Server 4',  url: `https://vidsrc.sbs/embed/movie/${tmdbId}`,                         quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc.mov',   label: 'Server 5',  url: `https://vidsrc.mov/embed/movie/${tmdbId}`,                         quality: '1080p', isHLS: false });
+  // ── Tier 2 ──
+  if (imdbId) sources.push({ provider: 'vidfast',      label: 'Server 6',  url: `https://vidfast.pro/movie/${imdbId}`,                              quality: '4K',    isHLS: false });
+  if (tmdbId) sources.push({ provider: 'multiembed',   label: 'Server 7',  url: `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`,                quality: 'HLS',   isHLS: true  });
+  if (tmdbId) sources.push({ provider: 'autoembed',    label: 'Server 8',  url: `https://player.autoembed.cc/embed/movie/${tmdbId}`,                quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: '2embed',       label: 'Server 9',  url: `https://www.2embed.stream/embed/movie/${tmdbId}`,                  quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'embed.su',     label: 'Server 10', url: `https://embed.su/embed/movie/${tmdbId}`,                           quality: '1080p', isHLS: false });
   return sources;
 }
 
@@ -180,7 +199,6 @@ router.post('/import', async (req, res) => {
 
     for (const m of movies) {
       try {
-        // Skip if title already exists
         const exists = await Movie.findOne({ title: { $regex: `^${m.title}$`, $options: 'i' } });
         if (exists) { results.skipped++; continue; }
 
@@ -195,7 +213,7 @@ router.post('/import', async (req, res) => {
           duration:      m.duration || 0,
           director:      m.director || '',
           cast:          m.cast || [],
-          language:      'English', // normalize to avoid validation errors
+          language:      'English',
           streamUrl:     m.streamUrl || m.primaryStreamUrl || (m.streamSources?.[0]?.url || ''),
           streamSources: (m.streamSources || []).map(s => ({
             provider: s.provider || 'direct',
