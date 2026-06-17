@@ -9,11 +9,11 @@ const router  = express.Router();
 
 function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   const sources = [];
-  if (tmdbId) sources.push({ provider: 'ezvidapi',     label: 'Server 1', url: `https://ezvidapi.com/embed/tv/${tmdbId}/${season}/${episode}`,                             quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidbinge',     label: 'Server 2', url: `https://vidbinge.to/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,          quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'embed-api',    label: 'Server 3', url: `https://player.embed-api.stream/?id=${tmdbId}&s=${season}&e=${episode}`,                  quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc.cc',    label: 'Server 4', url: `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`,                            quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc-embed', label: 'Server 5', url: `https://vidsrc-embed.su/embed/tv?tmdb=${tmdbId}&s=${season}&e=${episode}`,                quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc.to',  label: 'Server 1', url: `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,                            quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidlink',    label: 'Server 2', url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?autoplay=true`,                   quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'videasy',    label: 'Server 3', url: `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}`,                         quality: '4K',    isHLS: false });
+  if (tmdbId) sources.push({ provider: 'multiembed', label: 'Server 4', url: `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,            quality: 'auto',  isHLS: false });
+  if (tmdbId) sources.push({ provider: 'autoembed',  label: 'Server 5', url: `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`,                   quality: 'auto',  isHLS: false });
   return sources;
 }
 

@@ -74,11 +74,11 @@ const GENRE_MAP = {
 /* ─── Stream URL builders ─────────────────────────────────────────────────── */
 function buildStreamSources(tmdbId, imdbId) {
   const sources = [];
-  if (tmdbId) sources.push({ provider:'ezvidapi',     label:'Server 1', url:`https://ezvidapi.com/embed/movie/${tmdbId}`,                        quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidbinge',     label:'Server 2', url:`https://vidbinge.to/embed/movie?tmdb=${tmdbId}`,                    quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'embed-api',    label:'Server 3', url:`https://player.embed-api.stream/?id=${tmdbId}`,                     quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidsrc.cc',    label:'Server 4', url:`https://vidsrc.cc/v2/embed/movie/${tmdbId}`,                        quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'vidsrc-embed', label:'Server 5', url:`https://vidsrc-embed.su/embed/movie?tmdb=${tmdbId}`,                quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidsrc.to',    label:'Server 1', url:`https://vidsrc.to/embed/movie/${tmdbId}`,                           quality:'1080p', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vidlink',      label:'Server 2', url:`https://vidlink.pro/movie/${tmdbId}?autoplay=true`,                  quality:'1080p', isHLS:false });
+  if (tmdbId) sources.push({ provider:'videasy',      label:'Server 3', url:`https://player.videasy.net/movie/${tmdbId}`,                        quality:'4K',    isHLS:false });
+  if (tmdbId) sources.push({ provider:'multiembed',   label:'Server 4', url:`https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`,                  quality:'auto',  isHLS:false });
+  if (tmdbId) sources.push({ provider:'autoembed',    label:'Server 5', url:`https://player.autoembed.cc/embed/movie/${tmdbId}`,                  quality:'auto',  isHLS:false });
   return sources;
 }
 

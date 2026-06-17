@@ -60,14 +60,12 @@ function mapTmdbShow(s, details = null) {
 /* ─── Stream URL builder for TV episodes ──────────────────────────────────── */
 function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   const sources = [];
-  if (tmdbId) sources.push({ provider: 'autoembed',  label: 'Server 1', url: `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`,           quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidsrc',     label: 'Server 2', url: `https://vsembed.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`, quality: 'auto', isHLS: false });
-  if (imdbId) sources.push({ provider: 'embed.su',   label: 'Server 3', url: `https://embed.su/embed/tv/${imdbId}/${season}/${episode}`,                quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 4', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,               quality: 'auto', isHLS: false });
-  if (imdbId) sources.push({ provider: '2embed',     label: 'Server 5', url: `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}`,        quality: 'auto', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'embedrise',  label: 'Server 6', url: `https://embedrise.com/tv/${tmdbId}/${season}/${episode}`,                 quality: 'auto', isHLS: false });
-  // Server 7: aniwatch (good for anime)
-  if (tmdbId) sources.push({ provider: 'aniwave', label: 'Server 7', url: `https://aniwatchtv.to/tv/${tmdbId}/${season}/${episode}`, quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc.to',  label: 'Server 1', url: `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,                            quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidlink',    label: 'Server 2', url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?autoplay=true`,                   quality: '1080p', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'videasy',    label: 'Server 3', url: `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}`,                         quality: '4K',    isHLS: false });
+  if (tmdbId) sources.push({ provider: 'multiembed', label: 'Server 4', url: `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,            quality: 'auto',  isHLS: false });
+  if (tmdbId) sources.push({ provider: 'autoembed',  label: 'Server 5', url: `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`,                   quality: 'auto',  isHLS: false });
+  if (tmdbId) sources.push({ provider: 'superembed', label: 'Server 6', url: `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`, quality: 'HLS', isHLS: true });
   return sources;
 }
 
