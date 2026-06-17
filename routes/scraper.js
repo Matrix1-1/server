@@ -77,8 +77,10 @@ function buildStreamSources(tmdbId, imdbId) {
   if (tmdbId) sources.push({ provider:'vidlink',    label:'Server 1', url:`https://vidlink.pro/movie/${tmdbId}`,                            quality:'auto', isHLS:false });
   if (tmdbId) sources.push({ provider:'vidsrc.to',  label:'Server 2', url:`https://vidsrc.to/embed/movie/${tmdbId}`,                        quality:'auto', isHLS:false });
   if (imdbId) sources.push({ provider:'vidsrc.me',  label:'Server 3', url:`https://vidsrc.me/embed/movie?imdb=${imdbId}`,                   quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'superembed', label:'Server 4', url:`https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`, quality:'auto', isHLS:false });
-  if (tmdbId) sources.push({ provider:'moviesapi',  label:'Server 5', url:`https://moviesapi.club/movie/${tmdbId}`,                         quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'moviesapi',  label:'Server 4', url:`https://moviesapi.club/movie/${tmdbId}`,                         quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'superembed', label:'Server 5', url:`https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`, quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vsembed.ru', label:'Server 6', url:`https://vsembed.ru/embed/movie?tmdb=${tmdbId}&autoplay=1`,         quality:'auto', isHLS:false });
+  if (tmdbId) sources.push({ provider:'vsembed.su', label:'Server 7', url:`https://vsembed.su/embed/movie?tmdb=${tmdbId}&autoplay=1`,         quality:'auto', isHLS:false });
   return sources;
 }
 
