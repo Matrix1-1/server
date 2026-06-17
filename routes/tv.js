@@ -1,6 +1,6 @@
 /**
  * TV Show Routes — public endpoints
- * 4 best servers only
+ * Servers verified working/stable as of June 2026
  */
 
 const express = require('express');
@@ -9,11 +9,12 @@ const router  = express.Router();
 
 function buildEpisodeSources(tmdbId, imdbId, season, episode) {
   const sources = [];
-  if (tmdbId) sources.push({ provider: 'vidsrc.to',  label: 'Server 1', url: `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,                            quality: '1080p', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'vidlink',    label: 'Server 2', url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?autoplay=true`,                   quality: '1080p', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'videasy',    label: 'Server 3', url: `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}`,                         quality: '4K',    isHLS: false });
-  if (tmdbId) sources.push({ provider: 'multiembed', label: 'Server 4', url: `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,            quality: 'auto',  isHLS: false });
-  if (tmdbId) sources.push({ provider: 'autoembed',  label: 'Server 5', url: `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`,                   quality: 'auto',  isHLS: false });
+  if (tmdbId) sources.push({ provider: '111movies', label: 'Server 1', url: `https://111movies.com/tv/${tmdbId}/${season}/${episode}`,                       quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidlink',    label: 'Server 2', url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`,                          quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'vidsrc.to',  label: 'Server 3', url: `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,                      quality: 'auto', isHLS: false });
+  if (imdbId) sources.push({ provider: 'vidsrc.me',  label: 'Server 4', url: `https://vidsrc.me/embed/tv?imdb=${imdbId}&season=${season}&episode=${episode}`,  quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'superembed', label: 'Server 5', url: `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`, quality: 'auto', isHLS: false });
+  if (tmdbId) sources.push({ provider: 'moviesapi',  label: 'Server 6', url: `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,                       quality: 'auto', isHLS: false });
   return sources;
 }
 
