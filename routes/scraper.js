@@ -96,10 +96,6 @@ function buildStreamSources(tmdbId, imdbId) {
   if (tmdbId) sources.push({ provider: 'vidsrc.mov',   label: 'Server 5',  url: `https://vidsrc.mov/embed/movie/${tmdbId}`,                         quality: '1080p', isHLS: false });
   // ── Tier 2 ──
   if (imdbId) sources.push({ provider: 'vidfast',      label: 'Server 6',  url: `https://vidfast.pro/movie/${imdbId}`,                              quality: '4K',    isHLS: false });
-  if (tmdbId) sources.push({ provider: 'multiembed',   label: 'Server 7',  url: `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`,                quality: 'HLS',   isHLS: true  });
-  if (tmdbId) sources.push({ provider: 'autoembed',    label: 'Server 8',  url: `https://player.autoembed.cc/embed/movie/${tmdbId}`,                quality: '1080p', isHLS: false });
-  if (tmdbId) sources.push({ provider: '2embed',       label: 'Server 9',  url: `https://www.2embed.stream/embed/movie/${tmdbId}`,                  quality: '1080p', isHLS: false });
-  if (tmdbId) sources.push({ provider: 'embed.su',     label: 'Server 10', url: `https://embed.su/embed/movie/${tmdbId}`,                           quality: '1080p', isHLS: false });
   return sources;
 }
 
